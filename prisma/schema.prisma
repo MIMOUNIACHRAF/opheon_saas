@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── SAAS MULTI-TENANT ────────────────────────────────────────────────────────
+
+model Tenant {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  tagline      String?
+  description  String?
+  logo         String?
+  coverImage   String?
+  primaryColor String   @default("#C9A84C")
+  accentColor  String   @default("#1A0F0A")
+  phone        String?
+  email        String?
+  address      String?
+  city         String?
+  country      String   @default("Maroc")
+  hours        String?
+  facebook     String?
+  instagram    String?
+  plan         Plan     @default(BASIC)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users        User[]
+  categories   Category[]
+  products     Product[]
+  reservations Reservation[]
+  orders       Order[]
+}
+
+enum Plan {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STAFF)
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+// ─── MENU ─────────────────────────────────────────────────────────────────────
+
+model Category {
+  id       String    @id @default(cuid())
+  nameFr   String
+  nameEn   String
+  slug     String
+  order    Int       @default(0)
+  icon     String?
+  tenantId String
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  products Product[]
+
+  @@unique([slug, tenantId])
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  nameFr       String
+  nameEn       String
+  descFr       String?
+  descEn       String?
+  price        Float
+  image        String?
+  available    Boolean     @default(true)
+  featured     Boolean     @default(false)
+  isVegan      Boolean     @default(false)
+  isGlutenFree Boolean     @default(false)
+  allergens    String?
+  categoryId   String
+  category     Category    @relation(fields: [categoryId], references: [id])
+  tenantId     String
+  tenant       Tenant      @relation(fields: [tenantId], references: [id])
+  orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+}
+
+// ─── RESERVATIONS ─────────────────────────────────────────────────────────────
+
+model Reservation {
+  id          String            @id @default(cuid())
+  clientName  String
+  clientPhone String
+  clientEmail String?
+  date        DateTime
+  time        String
+  covers      Int
+  note        String?
+  status      ReservationStatus @default(PENDING)
+  tenantId    String
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime          @default(now())
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+// ─── ORDERS ───────────────────────────────────────────────────────────────────
+
+model Order {
+  id          String      @id @default(cuid())
+  type        OrderType
+  status      OrderStatus @default(PENDING)
+  total       Float
+  clientName  String
+  clientPhone String?
+  clientEmail String?
+  address     String?
+  note        String?
+  items       OrderItem[]
+  tenantId    String
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  unitPrice Float
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
