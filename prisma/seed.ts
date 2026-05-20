@@ -2,7 +2,9 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaLibSql } from '@prisma/adapter-libsql'
 import bcrypt from 'bcryptjs'
 
-const adapter = new PrismaLibSql({ url: 'file:./prisma/dev.db' })
+const url = (process.env.TURSO_DATABASE_URL ?? 'file:./prisma/dev.db').trim()
+const authToken = process.env.TURSO_AUTH_TOKEN?.replace(/\s+/g, '')
+const adapter = new PrismaLibSql({ url, authToken })
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const prisma = new PrismaClient({ adapter } as any)
 
