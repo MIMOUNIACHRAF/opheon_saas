@@ -22,9 +22,14 @@ export default async function DashboardLayout({
   const tenant = await prisma.tenant.findUnique({ where: { slug } })
   if (!tenant) notFound()
 
+  const [pendingOrders, pendingReservations] = await Promise.all([
+    prisma.order.count({ where: { tenantId: tenant.id, status: { in: ['PENDING', 'PREPARING'] } } }),
+    prisma.reservation.count({ where: { tenantId: tenant.id, status: 'PENDING' } }),
+  ])
+
   return (
     <div className="flex h-screen bg-espresso overflow-hidden">
-      <DashboardSidebar tenant={tenant} />
+      <DashboardSidebar tenant={tenant} pendingOrders={pendingOrders} pendingReservations={pendingReservations} />
       <main className="flex-1 overflow-y-auto">
         <div className="p-8">{children}</div>
       </main>
