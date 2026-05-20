@@ -3,6 +3,7 @@ import { getPrisma } from '@/lib/prisma'
 import { PublicNavbar } from '@/components/public/navbar'
 import { PublicFooter } from '@/components/public/footer'
 import { CartDrawer } from '@/components/public/cart-drawer'
+import { MobileBottomNav } from '@/components/public/mobile-bottom-nav'
 
 export default async function TenantLayout({
   children,
@@ -49,8 +50,12 @@ export default async function TenantLayout({
       />
       <PublicNavbar tenant={tenant} />
       <main className="flex-1">{children}</main>
-      <PublicFooter tenant={tenant} />
+      {/* Extra bottom padding on mobile so the bottom nav doesn't cover the footer */}
+      <div className="pb-16 md:pb-0">
+        <PublicFooter tenant={tenant} />
+      </div>
       <CartDrawer slug={slug} />
+      <MobileBottomNav slug={slug} primaryColor={tenant.primaryColor} />
     </div>
   )
 }

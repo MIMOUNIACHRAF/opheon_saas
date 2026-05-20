@@ -224,11 +224,12 @@ export default function CommanderPage({ params }: { params: Promise<{ slug: stri
         )}
       </div>
 
-      {/* Mobile cart bar */}
+      {/* Mobile cart bar — above the bottom nav on mobile (bottom-16), at bottom on tablet */}
       {step === 'menu' && items.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 glass border-t border-gold/20 z-30">
+        <div className="lg:hidden fixed bottom-16 md:bottom-0 left-0 right-0 z-[35] px-4 py-3 glass border-t border-gold/20">
           <Button onClick={() => setStep('checkout')} size="lg" className="w-full">
-            <ShoppingCart size={18} /> Voir panier ({items.reduce((s,i)=>s+i.quantity,0)}) — {formatPrice(totalAmount)}
+            <ShoppingCart size={18} />
+            Voir panier ({items.reduce((s, i) => s + i.quantity, 0)}) — {formatPrice(totalAmount)}
           </Button>
         </div>
       )}

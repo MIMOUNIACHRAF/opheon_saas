@@ -89,4 +89,13 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
   }
+
+  /* Hide scrollbar while keeping scroll functionality */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
